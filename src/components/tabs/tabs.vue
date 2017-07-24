@@ -1,12 +1,12 @@
 <template>
   <div class='tabs-wrapper'>
     <transition name="fade">
-      <div class="tabs" v-show="tabFlag" @click.stop>
-        <div class="tabBox">
+      <div class="tabs" v-show="tabFlag" @click.stop='tabFlag=!tabFlag'>
+        <div class="tabBox" @click.stop>
           <router-link tag="div" class="tab-item" to="/home">首页</router-link>
           <router-link tag="div" class="tab-item" to="/login" v-show="!loginStatus">登陆</router-link>
           <div class="tab-item" v-show="loginStatus" @click.prevent.stop="signOut">退出</div>
-          <div class="close" @click='hide'>Back</div>
+          <div class="close" @click='hide'>Close</div>
         </div>
       </div>
     </transition>
@@ -20,7 +20,7 @@ import confirm from '../confirm/confirm'
 
 export default {
   name: 'home',
-  data () {
+  data() {
     return {
       tabFlag: false
     }
@@ -47,6 +47,7 @@ export default {
     confirmClear() {
       this.setLoginInfo('')
       this.setLoginStatus(false)
+      this.hide()
     }
   },
   components: {

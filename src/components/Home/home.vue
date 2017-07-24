@@ -1,36 +1,19 @@
 <template>
-  <div class="home">
-    <tabs ref="tabs"></tabs>
-    <button @click="showTabs">test</button>   
+  <div class="home"> 
   </div>
 </template>
 
 <script>
-import tabs from '../tabs/tabs'
-import {mapActions, mapState} from 'vuex'
-
 export default {
   name: 'home',
   data() {
     return {}
   },
   computed: {
-    ...mapState([
-      'loginStatus'
-    ])
   },
   methods: {
-    ...mapActions([
-      'setLoginInfo',
-      'setLoginStatus'
-    ]),
-    showTabs() {
-      this.$refs.tabs.show()
-    }
   },
   components: {
-    confirm,
-    tabs
   }
 }
 </script>
