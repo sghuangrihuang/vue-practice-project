@@ -1,22 +1,30 @@
 <template>
+  <div class='tabs-wrapper'>
     <transition name="fade">
-      <div class="tabs" v-show="tabFlag" @click='tabFlag=!tabFlag'>
-        <div class="tabBox" >
+      <div class="tabs" v-show="tabFlag" @click.stop>
+        <div class="tabBox">
           <router-link tag="div" class="tab-item" to="/home">首页</router-link>
           <router-link tag="div" class="tab-item" to="/login" v-show="!loginStatus">登陆</router-link>
           <div class="tab-item" v-show="loginStatus" @click.prevent.stop="signOut">退出</div>
+          <div class="close" @click='hide'>Back</div>
         </div>
       </div>
     </transition>
+    <confirm ref="confirm" @confirm="confirmClear" text="是否退出账号" confirmBtnText="是" cancelBtnText="否"></confirm>
+  </div>
 </template>
 
 <script>
-import {saveToLocal} from '../../common/js/store'
 import {mapActions, mapState} from 'vuex'
+import confirm from '../confirm/confirm'
 
 export default {
   name: 'home',
-  props: [tabFlag],
+  data () {
+    return {
+      tabFlag: false
+    }
+  },
   computed: {
     ...mapState([
       'loginStatus'
@@ -27,10 +35,22 @@ export default {
       'setLoginInfo',
       'setLoginStatus'
     ]),
-    signOut () {
-      this.setLoginStatus(false)
+    show() {
+      this.tabFlag = true
+    },
+    hide() {
+      this.tabFlag = false
+    },
+    signOut() {
+      this.$refs.confirm.show()
+    },
+    confirmClear() {
       this.setLoginInfo('')
+      this.setLoginStatus(false)
     }
+  },
+  components: {
+    confirm
   }
 }
 </script>
@@ -60,5 +80,12 @@ export default {
       background rgba(0, 0, 0, .6)
       .tab-item
         font-size 18px
+        line-height 40px
+      .close
+        position absolute
+        bottom 0
+        left 0
+        width 100%
+        height 40px
         line-height 40px
 </style>
