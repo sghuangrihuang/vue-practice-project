@@ -5,6 +5,12 @@ import App from './App'
 import router from './router'
 import store from './store'
 
+import MuseUI from 'muse-ui'
+import 'muse-ui/dist/muse-ui.css'
+import 'muse-ui/dist/theme-default.css'
+
+Vue.use(MuseUI)
+
 import './common/stylus/index.styl'
 
 Vue.config.productionTip = false
