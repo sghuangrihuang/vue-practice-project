@@ -1,12 +1,8 @@
 <template>
   <div class="login">
-    <div v-if="loginInfo" class="userInfo">
-      <img :src='loginInfo.avatar_url' class="avatar"/>  
-      <p style="text-align:center" class="name">{{loginInfo.loginname}}</p>
-    </div>
-    <div v-show="!loginStatus" style="margin-top:40px">
-      <input type='text' v-model="access_token" style="margin-left: 20px"/>
-      <button  @click='textClick()'>登陆</button>
+    <div class="warrper">
+      <mu-text-field v-model="access_token" label="Access Token" :errorText="error" labelFloat/>
+      <mu-raised-button @click="login" label="登录" class="demo-raised-button" primary/>
     </div>
   </div>
 </template>
@@ -19,7 +15,8 @@ export default {
   name: 'login',
   data() {
     return {
-      access_token: '68d97a95-249b-4fe4-bd43-6f17e073b206'
+      access_token: '68d97a95-249b-4fe4-bd43-6f17e073b206',
+      error: ''
     }
   },
   computed: {
@@ -34,21 +31,22 @@ export default {
       'setLoginInfo',
       'setLoginStatus'
     ]),
-    back() {
-      this.$router.back(-1)
-    },
-    textClick(singer) {
+    login() {
       if (this.loginStatus) {
         return
       }
+      let _this = this
       let url = 'https://cnodejs.org/api/v1/accesstoken'
       axios.post(url, {
-        accesstoken: this.access_token
+        accesstoken: _this.access_token
       }).then(res => {
-        this.setLoginStatus(true)
-        this.setLoginInfo(res.data)
-        this.back()
+        _this.setLoginStatus(true)
+        _this.setLoginInfo(res.data)
+        _this.$router.push({
+          path: '/user'
+        })
       }).catch(res => {
+        _this.error = 'error'
       })
     }
   }
@@ -58,13 +56,20 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="stylus" rel="stylesheet/stylus">
   .login
-    .userInfo
-      .avatar
-        width 80px
-        height 80px
-        margin 0 auto 20px
-        display block 
-      .name
-        text-align center
-        font-size 18px
+    position absolute
+    top 56px
+    left 0
+    right 0
+    bottom 56px
+    z-index 10
+    display: flex;
+    .warrper
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      .demo-raised-button
+        margin-top 40px
+        width 256px
 </style>
