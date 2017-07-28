@@ -1,8 +1,8 @@
 <template>
   <div class="login">
     <div class="warrper">
-      <mu-text-field v-model="access_token" label="Access Token" :errorText="error" labelFloat/>
-      <mu-raised-button @click="login" label="登录" class="demo-raised-button" primary/>
+      <mu-text-field v-model="userLoginName" label="Access Token" :errorText="error" labelFloat/>
+      <mu-raised-button @click="login" label="查看" class="demo-raised-button" primary/>
     </div>
   </div>
 </template>
@@ -15,13 +15,12 @@ export default {
   name: 'login',
   data() {
     return {
-      access_token: '68d97a95-249b-4fe4-bd43-6f17e073b206',
+      userLoginName: 'sghuangrihuang',
       error: ''
     }
   },
   computed: {
     ...mapState([
-      'testMess',
       'loginStatus',
       'loginInfo'
     ])
@@ -35,18 +34,15 @@ export default {
       if (this.loginStatus) {
         return
       }
-      let _this = this
-      let url = 'https://cnodejs.org/api/v1/accesstoken'
-      axios.post(url, {
-        accesstoken: _this.access_token
-      }).then(res => {
-        _this.setLoginStatus(true)
-        _this.setLoginInfo(res.data)
-        _this.$router.push({
+      let url = `https://api.github.com/users/${this.userLoginName}`
+      axios.get(url).then(res => {
+        this.setLoginStatus(true)
+        this.setLoginInfo(res.data)
+        this.$router.push({
           path: '/user'
         })
       }).catch(res => {
-        _this.error = 'error'
+        this.error = '用户名错误，请重新输入'
       })
     }
   }

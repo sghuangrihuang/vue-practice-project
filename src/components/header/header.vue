@@ -1,6 +1,5 @@
 <template>
-  <mu-appbar title="" class="header">
-    <mu-icon-button icon="menu" slot="left"/>
+  <mu-appbar title="github" class="header">
     <mu-icon-menu icon="more_vert" slot="right" :value="theme" @change="changeTheme">
       <mu-menu-item title="LIGHT" value="light"/>
       <mu-menu-item title="DARK" value="dark"/>
@@ -44,3 +43,12 @@ export default {
   }
 }
 </script>
+
+<style scoped lang="stylus" rel="stylesheet/stylus">
+  .header
+    position fixed
+    top 0
+    left 0
+    right 0
+    height 56px
+</style>

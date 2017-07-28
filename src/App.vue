@@ -1,9 +1,11 @@
 <template>
   <div id="app">
     <m-header></m-header>
-    <keep-alive>
-      <router-view></router-view>
-    </keep-alive>
+    <div class="contentWarrper">
+      <keep-alive>
+        <router-view></router-view>
+      </keep-alive>
+    </div>
     <m-footer></m-footer>
   </div>
 </template>
@@ -22,5 +24,12 @@ export default {
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus" scoped>
-
+  .contentWarrper
+    position fixed
+    top 56px
+    bottom 56px
+    left 0
+    right 0px
+    overflow-y auto
+    overflow-x hidden
 </style>
