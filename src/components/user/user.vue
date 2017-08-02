@@ -19,7 +19,7 @@
         <mu-icon slot="left" value="person_pin"/>
         <mu-badge :content="`${loginInfo.followers}`" slot="after" primary/>
       </mu-list-item>
-      <mu-list-item title="关注">
+      <mu-list-item title="关注" @click="followingClick">
         <mu-icon slot="left" value="favorite"/>
         <mu-badge :content="`${loginInfo.following}`" slot="after" primary/>
       </mu-list-item>
@@ -34,7 +34,7 @@
     </mu-dialog>
     <transition name="move">
       <div class="moveList" v-show="moveFlag">
-        <mu-icon-button icon="reply" color="red" slot="left" @click="moveFlag = false"/>
+        <mu-icon-button icon="reply" color="red" slot="left" @click="closeFlag"/>
         <mu-list v-show="followers && followers.length">
           <mu-list-item v-for="item in followers" :key="item.id" :title="item.name || item.login" :describeText="item.html_url">
             <mu-avatar :src="item.avatar_url" slot="leftAvatar" />
@@ -44,6 +44,12 @@
         <mu-list v-show="repos && repos.length ">
           <mu-list-item v-for="repo in repos" :key="repo.id" :title="repo.name" :describeText="repo.description || 'no description'">
             <mu-icon value="folder" slot="left" primary/>
+          </mu-list-item>
+        </mu-list>
+        <mu-list v-show="following && following.length">
+          <mu-list-item v-for="item in following" :key="item.id" :title="item.name || item.login" :describeText="item.html_url">
+            <mu-avatar :src="item.avatar_url" slot="leftAvatar" />
+            <mu-icon value="info" slot="right"/>
           </mu-list-item>
         </mu-list>
       </div>
@@ -72,7 +78,10 @@ export default {
       repos: {
         type: Object
       },
-      moveFlag: false
+      moveFlag: false,
+      following: {
+        type: Object
+      }
     }
   },
   computed: {
@@ -98,6 +107,26 @@ export default {
       this.setLoginInfo('')
       this.$router.push({
         path: '/login'
+      })
+    },
+    closeFlag() {
+      this.moveFlag = false
+      this.followers = {}
+      this.repos = {}
+      this.following = {}
+    },
+    followingClick() {
+      if (!this.loginInfo.following) {
+        return
+      }
+      let url = `https://api.github.com/users/${this.loginInfo.login}/following`
+      this.loadingFlag = true
+      axios.get(url).then((res) => {
+        this.following = res.data
+        this.loadingFlag = false
+        this.moveFlag = true
+      }).catch((res) => {
+        console.log(res)
       })
     },
     followerClick() {
