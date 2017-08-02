@@ -33,12 +33,17 @@
         <mu-flat-button slot="actions" primary @click="signOut" label="确定"/>
     </mu-dialog>
     <transition name="move">
-      <div class="followersList" v-show="followerFlag" @click='followerFlag = false'>
-        <mu-list>
-          <mu-sub-header inset >followers</mu-sub-header>
+      <div class="moveList" v-show="moveFlag">
+        <mu-icon-button icon="reply" color="red" slot="left" @click="moveFlag = false"/>
+        <mu-list v-show="followers && followers.length">
           <mu-list-item v-for="item in followers" :key="item.id" :title="item.name || item.login" :describeText="item.html_url">
             <mu-avatar :src="item.avatar_url" slot="leftAvatar" />
             <mu-icon value="info" slot="right"/>
+          </mu-list-item>
+        </mu-list>
+        <mu-list v-show="repos && repos.length ">
+          <mu-list-item v-for="repo in repos" :key="repo.id" :title="repo.name" :describeText="repo.description || 'no description'">
+            <mu-icon value="folder" slot="left" primary/>
           </mu-list-item>
         </mu-list>
       </div>
@@ -60,11 +65,14 @@ export default {
   data() {
     return {
       dialog: false,
-      followerFlag: false,
       followers: {
         type: Object
       },
-      loadingFlag: false
+      loadingFlag: false,
+      repos: {
+        type: Object
+      },
+      moveFlag: false
     }
   },
   computed: {
@@ -100,17 +108,22 @@ export default {
       this.loadingFlag = true
       axios.get(url).then((res) => {
         this.followers = res.data
-        console.log(this.followers)
         this.loadingFlag = false
-        this.followerFlag = true
+        this.moveFlag = true
       }).catch((res) => {
         console.log(res)
       })
     },
     reposClick() {
+      if (!this.loginInfo.public_repos) {
+        return
+      }
       let url = `https://api.github.com/users/${this.loginInfo.login}/repos`
+      this.loadingFlag = true
       axios.get(url).then((res) => {
-        // console.log(res.data)
+        this.repos = res.data
+        this.loadingFlag = false
+        this.moveFlag = true
       }).catch((res) => {
         console.log(res)
       })
@@ -120,7 +133,7 @@ export default {
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
-.followersList
+.moveList
   position: absolute
   top:0px
   left: 0
