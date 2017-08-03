@@ -32,6 +32,24 @@
         <mu-flat-button slot="actions" @click="close" primary label="取消"/>
         <mu-flat-button slot="actions" primary @click="signOut" label="确定"/>
     </mu-dialog>
+    <transition name="test">
+      <div class="testList" v-show="itemArr && itemArr.length">
+        <mu-icon-button icon="reply" slot="left" @click="closeTest"/>
+        <mu-icon-menu icon="more_vert" :value="branches" @change="changeVal">
+          <mu-menu-item v-for="(item, index) in itemArr" :key="index" :title="item.name" :value="item.name"/>
+        </mu-icon-menu>
+        <mu-menu-item :title="branches">
+          <mu-badge :content="`${commitList.length}`" slot="after" primary/>
+        </mu-menu-item>
+        <mu-list>
+          <mu-list-item v-for="(item, index) in commitList" :key="index" 
+            :title="item.commit.author.name" 
+            :describeText="item.commit.message" 
+            :afterText="item.commit.author.date | toDate">
+          </mu-list-item>
+        </mu-list>
+      </div>
+    </transition>
     <transition name="move">
       <div class="moveList" v-show="moveFlag">
         <mu-icon-button icon="reply" color="red" slot="left" @click="closeFlag"/>
@@ -42,7 +60,7 @@
           </mu-list-item>
         </mu-list>
         <mu-list v-show="repos && repos.length ">
-          <mu-list-item v-for="repo in repos" :key="repo.id" :title="repo.name" :describeText="repo.description || 'no description'">
+          <mu-list-item @click="itemclick(repo)" v-for="repo in repos" :key="repo.id" :title="repo.name" :describeText="repo.description || 'no description'">
             <mu-icon value="folder" slot="left" primary/>
           </mu-list-item>
         </mu-list>
@@ -81,7 +99,13 @@ export default {
       moveFlag: false,
       following: {
         type: Object
-      }
+      },
+      selectItem: '',
+      itemArr: {
+        type: Array
+      },
+      branches: 'master',
+      commitList: []
     }
   },
   computed: {
@@ -90,11 +114,41 @@ export default {
       'loginStatus'
     ])
   },
+  filters: {
+    toDate(val) {
+      return val.replace(/T/g, ' ').replace(/Z/g, '')
+    }
+  },
   methods: {
     ...mapActions([
       'setLoginInfo',
       'setLoginStatus'
     ]),
+    closeTest() {
+      this.itemArr = []
+    },
+    changeVal(val) {
+      this.branches = val
+      let url = `${this.selectItem}?sha=${val}`
+      axios.get(url).then((res) => {
+        this.commitList = res.data
+        this.loadingFlag = false
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
+    itemclick(repo) {
+      let commitUrl = repo.commits_url.split('{')[0]
+      let url = repo.branches_url.split('{')[0]
+      this.loadingFlag = true
+      axios.get(url).then((res) => {
+        this.itemArr = res.data
+        this.selectItem = commitUrl
+        this.changeVal('master')
+      }).catch((res) => {
+        console.log(res)
+      })
+    },
     open() {
       this.dialog = true
     },
@@ -175,6 +229,21 @@ export default {
     transition: all 0.2s linear
   &.move-enter,&.move-leave-active
     transform:translate3d(100%,0,0)
+.testList
+  position: absolute
+  top:0px
+  left: 0
+  right 0
+  bottom:0px
+  z-index: 35
+  background-color: #FFF
+  transform:translate3d(0,0,0)
+  &.test-enter-active,&.test-leave-active
+    transition: all 0.2s linear
+  &.test-enter,&.test-leave-active
+    transform:translate3d(100%,0,0)
+  .mu-list
+    background-color: #FFF
 .loading
   position: absolute
   top:0px
