@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "axios": "^0.16.2",
+    "better-scroll": "^0.4.0",
     "marked": "^0.3.6",
     "muse-ui": "^2.1.0",
     "raw-loader": "^0.5.1",

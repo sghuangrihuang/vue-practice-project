@@ -1,87 +1,92 @@
 <template>
-  <div class="user" v-show="loginInfo">
-    <mu-avatar :src="loginInfo.avatar_url"  slot="left" :size="200" style="margin:20px auto;display:block"/>
-    <mu-divider shallowInset/>
-    <mu-list>
-      <mu-list-item title="姓名">
-        <mu-icon slot="left" value="person"/>
-        <mu-badge :content="loginInfo.name || loginInfo.login" primary slot="after"/>
-      </mu-list-item>
-      <mu-list-item title="邮箱">
-        <mu-icon slot="left" value="email"/>
-        <mu-badge :content="loginInfo.email || '未公开'" primary slot="after"/>
-      </mu-list-item>
-      <mu-list-item title="仓库" @click="reposClick">
-        <mu-icon slot="left" value="folder"/>
-        <mu-badge :content="`${loginInfo.public_repos}`" slot="after" primary/>
-      </mu-list-item>
-      <mu-list-item title="粉丝"  @click="followerClick">
-        <mu-icon slot="left" value="person_pin"/>
-        <mu-badge :content="`${loginInfo.followers}`" slot="after" primary/>
-      </mu-list-item>
-      <mu-list-item title="关注" @click="followingClick">
-        <mu-icon slot="left" value="favorite"/>
-        <mu-badge :content="`${loginInfo.following}`" slot="after" primary/>
-      </mu-list-item>
-      <mu-divider shallowInset/>
-      <mu-list-item title="退出" @click="open">
-        <mu-icon slot="left" value="power_settings_new"/>
-      </mu-list-item>
-    </mu-list>
-    <mu-dialog :open="dialog" title="是否退出" @close="close">
-        <mu-flat-button slot="actions" @click="close" primary label="取消"/>
-        <mu-flat-button slot="actions" primary @click="signOut" label="确定"/>
-    </mu-dialog>
-    <transition name="test">
-      <div class="testList" v-show="itemArr && itemArr.length">
-        <mu-icon-button icon="reply" slot="left" @click="closeTest"/>
-        <mu-icon-menu icon="more_vert" :value="branches" @change="changeVal">
-          <mu-menu-item v-for="(item, index) in itemArr" :key="index" :title="item.name" :value="item.name"/>
-        </mu-icon-menu>
-        <mu-menu-item :title="branches">
-          <mu-badge :content="`${commitList.length}`" slot="after" primary/>
-        </mu-menu-item>
-        <mu-list>
-          <mu-list-item v-for="(item, index) in commitList" :key="index" 
-            :title="item.commit.author.name" 
-            :describeText="item.commit.message" 
-            :afterText="item.commit.author.date | toDate">
-          </mu-list-item>
-        </mu-list>
-      </div>
-    </transition>
-    <transition name="move">
-      <div class="moveList" v-show="moveFlag">
-        <mu-icon-button icon="reply" color="red" slot="left" @click="closeFlag"/>
-        <mu-list v-show="followers && followers.length">
-          <mu-list-item v-for="item in followers" :key="item.id" :title="item.name || item.login" :describeText="item.html_url">
-            <mu-avatar :src="item.avatar_url" slot="leftAvatar" />
-            <mu-icon value="info" slot="right"/>
-          </mu-list-item>
-        </mu-list>
-        <mu-list v-show="repos && repos.length ">
-          <mu-list-item @click="itemclick(repo)" v-for="repo in repos" :key="repo.id" :title="repo.name" :describeText="repo.description || 'no description'">
-            <mu-icon value="folder" slot="left" primary/>
-          </mu-list-item>
-        </mu-list>
-        <mu-list v-show="following && following.length">
-          <mu-list-item v-for="item in following" :key="item.id" :title="item.name || item.login" :describeText="item.html_url">
-            <mu-avatar :src="item.avatar_url" slot="leftAvatar" />
-            <mu-icon value="info" slot="right"/>
-          </mu-list-item>
-        </mu-list>
-      </div>
-    </transition>
-    <transition name="fade">
-      <div class="loading" v-show="loadingFlag">
-        <mu-circular-progress :size="60" :strokeWidth="3" />
-      </div>
-    </transition>
-  </div>
+  <scroll ref="user" class="userWarpper">
+    <div class="user" v-show="loginInfo">
+      <mu-avatar :src="loginInfo.avatar_url"  slot="left" :size="200" style="margin:0px auto 20px;display:block"/>
+      <mu-divider/>
+      <mu-list>
+        <mu-list-item title="姓名">
+          <mu-icon slot="left" value="person"/>
+          <mu-badge :content="loginInfo.name || loginInfo.login" primary slot="after"/>
+        </mu-list-item>
+        <mu-list-item title="邮箱">
+          <mu-icon slot="left" value="email"/>
+          <mu-badge :content="loginInfo.email || '未公开'" primary slot="after"/>
+        </mu-list-item>
+        <mu-list-item title="仓库" @click="reposClick">
+          <mu-icon slot="left" value="folder"/>
+          <mu-badge :content="`${loginInfo.public_repos}`" slot="after" primary/>
+        </mu-list-item>
+        <mu-list-item title="粉丝"  @click="followerClick">
+          <mu-icon slot="left" value="person_pin"/>
+          <mu-badge :content="`${loginInfo.followers}`" slot="after" primary/>
+        </mu-list-item>
+        <mu-list-item title="关注" @click="followingClick">
+          <mu-icon slot="left" value="favorite"/>
+          <mu-badge :content="`${loginInfo.following}`" slot="after" primary/>
+        </mu-list-item>
+        <mu-divider shallowInset/>
+        <mu-list-item title="退出" @click="open">
+          <mu-icon slot="left" value="power_settings_new"/>
+        </mu-list-item>
+      </mu-list>
+      <mu-dialog :open="dialog" title="是否退出" @close="close">
+          <mu-flat-button slot="actions" @click="close" primary label="取消"/>
+          <mu-flat-button slot="actions" primary @click="signOut" label="确定"/>
+      </mu-dialog>
+      <transition name="test">
+        <!-- <scroll :data="itemArr" ref="testList"  class="testListWarpper"> -->
+        <div class="testList" v-show="itemArr && itemArr.length">
+            <mu-icon-button icon="reply" slot="left" @click="closeTest"/>
+            <mu-icon-menu icon="more_vert" :value="branches" @change="changeVal">
+              <mu-menu-item v-for="(item, index) in itemArr" :key="index" :title="item.name" :value="item.name"/>
+            </mu-icon-menu>
+            <mu-menu-item :title="branches">
+              <mu-badge :content="`${commitList.length}`" slot="after" primary/>
+            </mu-menu-item>
+            <mu-list>
+              <mu-list-item v-for="(item, index) in commitList" :key="index" 
+                :title="item.commit.author.name" 
+                :describeText="item.commit.message" 
+                :afterText="item.commit.author.date | toDate">
+              </mu-list-item>
+            </mu-list>
+        </div>
+        <!-- </scroll> -->
+      </transition>
+      <transition name="move">
+        <div class="moveList" v-show="moveFlag">
+            <mu-icon-button icon="reply" color="red" slot="left" @click="closeFlag"/>
+            <mu-list v-show="followers && followers.length">
+              <mu-list-item v-for="item in followers" :key="item.id" :title="item.name || item.login" :describeText="item.html_url">
+                <mu-avatar :src="item.avatar_url" slot="leftAvatar" />
+                <mu-icon value="info" slot="right"/>
+              </mu-list-item>
+            </mu-list>
+            <mu-list v-show="repos && repos.length ">
+              <mu-list-item @click="itemclick(repo)" v-for="repo in repos" :key="repo.id" :title="repo.name" :describeText="repo.description || 'no description'">
+                <mu-icon value="folder" slot="left" primary/>
+              </mu-list-item>
+            </mu-list>
+            <mu-list v-show="following && following.length">
+              <mu-list-item v-for="item in following" :key="item.id" :title="item.name || item.login" :describeText="item.html_url">
+                <mu-avatar :src="item.avatar_url" slot="leftAvatar" />
+                <mu-icon value="info" slot="right"/>
+              </mu-list-item>
+            </mu-list>
+        </div>
+      </transition>
+      <transition name="fade">
+        <div class="loading" v-show="loadingFlag">
+          <mu-circular-progress :size="60" :strokeWidth="3" />
+        </div>
+      </transition>
+    </div>
+  </scroll>
 </template>
 
 <script>
 import {mapState, mapActions} from 'vuex'
+import scroll from '../scroll/scroll'
 import axios from 'axios'
 
 export default {
@@ -89,21 +94,13 @@ export default {
   data() {
     return {
       dialog: false,
-      followers: {
-        type: Object
-      },
+      followers: [],
       loadingFlag: false,
-      repos: {
-        type: Object
-      },
+      repos: [],
       moveFlag: false,
-      following: {
-        type: Object
-      },
+      following: [],
       selectItem: '',
-      itemArr: {
-        type: Array
-      },
+      itemArr: [],
       branches: 'master',
       commitList: []
     }
@@ -165,9 +162,10 @@ export default {
     },
     closeFlag() {
       this.moveFlag = false
-      this.followers = {}
-      this.repos = {}
-      this.following = {}
+      this.followers = []
+      this.repos = []
+      this.following = []
+      this.$refs.user.enable()
     },
     followingClick() {
       if (!this.loginInfo.following) {
@@ -179,6 +177,7 @@ export default {
         this.following = res.data
         this.loadingFlag = false
         this.moveFlag = true
+        this.$refs.user.disable()
       }).catch((res) => {
         console.log(res)
       })
@@ -193,6 +192,7 @@ export default {
         this.followers = res.data
         this.loadingFlag = false
         this.moveFlag = true
+        this.$refs.user.disable()
       }).catch((res) => {
         console.log(res)
       })
@@ -207,15 +207,24 @@ export default {
         this.repos = res.data
         this.loadingFlag = false
         this.moveFlag = true
+        this.$refs.user.disable()
       }).catch((res) => {
         console.log(res)
       })
     }
+  },
+  components: {
+    scroll
   }
 }
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
+.user
+  padding-top 20px
+.userWarpper
+  height 100%
+  overflow hidden
 .moveList
   position: absolute
   top:0px
@@ -229,6 +238,12 @@ export default {
     transition: all 0.2s linear
   &.move-enter,&.move-leave-active
     transform:translate3d(100%,0,0)
+.moveListWarpper
+  height 100%
+  // overflow hidden
+.testListWarpper
+  height 100%
+  // overflow hidden
 .testList
   position: absolute
   top:0px
